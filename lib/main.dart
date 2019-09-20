@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 
 void main() => runApp(MaterialApp(
-    debugShowCheckedModeBanner: false, title: ("interest calculator "), home: Body(),
-    color: Colors.red
-    ,theme: ThemeData(accentColor: Colors.green,primaryColor: Colors.greenAccent,scaffoldBackgroundColor: Colors.grey),
+      debugShowCheckedModeBanner: false,
+      title: ("interest calculator "),
+      home: Body(),
+      color: Colors.orangeAccent,
+      theme: ThemeData(
+          accentColor: Colors.green,
+          primaryColor: Colors.greenAccent,
+          scaffoldBackgroundColor: Colors.grey),
     ));
 
 class Body extends StatefulWidget {
@@ -15,30 +20,47 @@ class Body extends StatefulWidget {
 
 class _Dev extends State<Body> {
   final _minimumPadding = 5.0;
-  var _currencies = ['Ruppes', 'Dollars', 'Pounds'];
-
+  var _currencies = ['euro', 'Dollar', 'Dinar'];
+  var _currentItemSelected = 'Dollar';
+  var displayResult = '';
+  var _fromKey = GlobalKey<FormState>();
+  TextEditingController principalController = TextEditingController();
+  TextEditingController ratecontroller = TextEditingController();
+  TextEditingController termController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     TextStyle textStyle = Theme.of(context).textTheme.button;
     return Scaffold(
       //resizeToAvoidBottomPadding: false,
-     /* appBar: AppBar(
-        /*title: Text(
+      appBar: AppBar(
+        backgroundColor: Colors.orangeAccent,
+        elevation: 50.0,
+        brightness: Brightness.dark,
+        title: Text(
           "Interest Calculator",
-          style: TextStyle(fontSize: 20.0),
-        ),*/
-      ),*/
-      body: Container(
-        
+          style: TextStyle(fontSize: 20.0, color: Colors.grey[700]),
+        ),
+      ),
+      body: Form(
+        key: _fromKey,
         child: ListView(
           children: <Widget>[
             getImagesAssets(),
             Padding(
                 padding: EdgeInsets.only(
-                    top: _minimumPadding, bottom: _minimumPadding + 5, right: _minimumPadding * 5,left: _minimumPadding * 5),
-                child: TextField(
+                    top: _minimumPadding,
+                    bottom: _minimumPadding + 5,
+                    right: _minimumPadding * 5,
+                    left: _minimumPadding * 5),
+                child: TextFormField(
                   keyboardType: TextInputType.number,
                   style: textStyle,
+                  controller: principalController,
+                  validator: (String value) {
+                    if (value.isEmpty) {
+                      return 'enter principale amount';
+                    }
+                  },
                   decoration: InputDecoration(
                       labelText: 'Principal',
                       hintText: 'Enter principal eg 1200',
@@ -47,10 +69,19 @@ class _Dev extends State<Body> {
                 )),
             Padding(
                 padding: EdgeInsets.only(
-                    top: _minimumPadding, bottom: _minimumPadding + 5, right: _minimumPadding * 5,left: _minimumPadding * 5),
-                child: TextField(
+                    top: _minimumPadding,
+                    bottom: _minimumPadding + 5,
+                    right: _minimumPadding * 5,
+                    left: _minimumPadding * 5),
+                child: TextFormField(
                   style: textStyle,
                   keyboardType: TextInputType.number,
+                  controller: ratecontroller,
+                  validator: (String value) {
+                    if (value.isEmpty) {
+                      return 'enter the rate';
+                    }
+                  },
                   decoration: InputDecoration(
                       labelText: 'Rate of interest ',
                       hintText: 'IN present',
@@ -59,15 +90,24 @@ class _Dev extends State<Body> {
                 )),
             Padding(
                 padding: EdgeInsets.only(
-                    top: _minimumPadding, bottom: _minimumPadding + 5, right: _minimumPadding * 5,left: _minimumPadding * 5),
+                    top: _minimumPadding,
+                    bottom: _minimumPadding + 5,
+                    right: _minimumPadding * 5,
+                    left: _minimumPadding * 5),
                 child: Row(
                   children: <Widget>[
                     Expanded(
-                        child: TextField(
-                          keyboardType: TextInputType.number,
+                        child: TextFormField(
+                      keyboardType: TextInputType.number,
+                      controller: termController,
+                      validator: (String value) {
+                        if (value.isEmpty) {
+                          return ' enter the term';
+                        }
+                      },
                       decoration: InputDecoration(
                           labelText: 'Term ',
-                          hintText: 'Time in years',
+                          hintText: 'Time in year',
                           border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(20.0))),
                     )),
@@ -82,35 +122,59 @@ class _Dev extends State<Body> {
                           child: Text(value),
                         );
                       }).toList(),
-                      value: 'Ruppes',
-                      onChanged: (String newValueSelected) {},
+                      value: _currentItemSelected,
+                      onChanged: (String newValueSelected) {
+                        setState(() {
+                          this._currentItemSelected = newValueSelected;
+                        });
+                        //_onDropDownItemSelected(newValueSelected);
+                      },
                     ))
                   ],
                 )),
             Padding(
                 padding: EdgeInsets.only(
-                    top: _minimumPadding, bottom: _minimumPadding + 5, right: _minimumPadding * 5,left: _minimumPadding * 5),
+                    top: _minimumPadding,
+                    bottom: _minimumPadding + 5,
+                    right: _minimumPadding * 5,
+                    left: _minimumPadding * 5),
                 child: Row(
                   children: <Widget>[
                     Expanded(
                       child: RaisedButton(
                         color: Colors.orangeAccent,
                         child: Text("Calculate"),
-                        onPressed: () {},
+                        onPressed: () {
+                          setState(() {
+                            if (_fromKey.currentState.validate()) {
+                              _calculateInterest();
+                              this.displayResult = _calculateInterest();
+                            }
+                          });
+                        },
                       ),
                     ),
-                    Container(width: 15,),
+                    Container(
+                      width: 15,
+                    ),
                     Expanded(
                       child: RaisedButton(
-                        child: Text("Reset"),
-                        onPressed: () {},
-                      ),
+                          child: Text("Reset"),
+                          onPressed: () {
+                            setState(() {
+                              principalController.text = '';
+                              termController.text = '';
+                              ratecontroller.text = '';
+                              displayResult = '';
+                            });
+                          }),
                     )
                   ],
-                )) , 
-                Padding(
-                  padding:EdgeInsets.only( top: _minimumPadding, bottom: _minimumPadding ),
-                  child:  Text("Todo text",textAlign: TextAlign.center),)
+                )),
+            Padding(
+              padding: EdgeInsets.all(_minimumPadding * 2),
+              child: Text(displayResult, textAlign: TextAlign.center,style: TextStyle(color: Colors.white,fontSize: 18),),
+            )
           ],
         ),
       ),
@@ -118,7 +182,7 @@ class _Dev extends State<Body> {
   }
 
   Widget getImagesAssets() {
-    AssetImage assetImage = AssetImage('assets/images/pic.jpg');
+    AssetImage assetImage = AssetImage('assets/images/pic.png');
     Image image = Image(
       image: assetImage,
       width: 100.0,
@@ -126,7 +190,19 @@ class _Dev extends State<Body> {
     );
     return Container(
       child: image,
-      padding: EdgeInsets.only(bottom: _minimumPadding + 20,top: _minimumPadding +30),
+      padding: EdgeInsets.only(
+          bottom: _minimumPadding + 20, top: _minimumPadding + 30),
     );
+  }
+
+  String _calculateInterest() {
+    double principle = double.parse(principalController.text);
+    double rate = double.parse(ratecontroller.text);
+    double term = double.parse(termController.text);
+
+    double totalAmpunt = principle + (principle * rate * term) / 100;
+    String result =
+        'After $term years , your investment will be worth $totalAmpunt $_currentItemSelected ';
+    return result;
   }
 }
