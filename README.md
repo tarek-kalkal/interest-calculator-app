@@ -1,6 +1,11 @@
-# money_tracker
+# Interest calculator
 
-A new Flutter project.
+My first Flutter mobile application project.
+
+
+<img src="assets/images/image.png" width="500" >
+
+
 
 ## Getting Started
 
